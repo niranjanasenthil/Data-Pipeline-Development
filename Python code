@@ -1,0 +1,28 @@
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+import os
+
+#EXTRACT
+iris = load_iris()
+X = pd.DataFrame(iris.data, columns=iris.feature_names)
+y = pd.Series(iris.target, name='target')
+target_names = iris.target_names
+y_named = y.map(lambda idx: target_names[idx])
+df = pd.concat([X, y_named.rename("species")], axis=1)
+df.head()
+
+#TRANSFORM
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+label_encoder = LabelEncoder()
+y_encoded = label_encoder.fit_transform(y_named)
+processed_df = pd.DataFrame(X_scaled, columns=iris.feature_names)
+processed_df['species'] = y_encoded
+processed_df.head()
+
+#LOAD
+output_dir = 'data/processed'
+os.makedirs(output_dir, exist_ok=True)
+processed_df.to_csv(f'{output_dir}/iris_cleaned.csv', index=False)
+print("✅ Cleaned Iris data saved to 'data/processed/iris_cleaned.csv'")
